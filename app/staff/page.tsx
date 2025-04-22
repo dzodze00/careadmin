@@ -6,15 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Search, Plus, Download, User, Calendar, CheckCircle, AlertTriangle } from "lucide-react"
+import { Search, Download, User, Calendar, CheckCircle, AlertTriangle } from "lucide-react"
+import { AddStaffModal } from "./add-staff-modal"
 
 export default function StaffManagementPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState("all")
-
-  const handleAddStaff = () => {
-    alert("Opening staff creation form")
-  }
 
   const handleViewStaff = (staff) => {
     alert(`Viewing details for staff member: ${staff.name}`)
@@ -39,10 +36,7 @@ export default function StaffManagementPage() {
           <h1 className="text-3xl font-bold tracking-tight">Staff Management</h1>
           <p className="text-muted-foreground">Manage staff, credentials, and scheduling</p>
         </div>
-        <Button onClick={handleAddStaff}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Staff Member
-        </Button>
+        <AddStaffModal />
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
