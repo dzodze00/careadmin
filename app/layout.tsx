@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Sidebar } from "@/components/sidebar"
 import { Button } from "@/components/ui/button"
-import { QuestionMarkCircledIcon } from "@radix-ui/react-icons"
+import { HelpCircle } from "lucide-react"
 import { StateSelector } from "@/components/state-selector"
 import { StateProvider } from "@/components/state-context"
 
@@ -31,7 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <StateSelector />
                   </div>
                   <Button variant="ghost" size="icon" aria-label="Help">
-                    <QuestionMarkCircledIcon className="h-5 w-5" />
+                    <HelpCircle className="h-5 w-5" />
                   </Button>
                 </header>
                 <main className="p-6">{children}</main>
