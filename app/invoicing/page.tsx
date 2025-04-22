@@ -1,4 +1,5 @@
-import { Check, Download, FileText, Filter, Plus, Search } from "lucide-react"
+"use client"
+import { Check, Download, FileText, Filter, Search } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -7,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { InvoiceModal } from "./invoice-modal"
 
 export default function InvoicingPage() {
   return (
@@ -17,10 +19,13 @@ export default function InvoicingPage() {
             <FileText className="h-6 w-6" />
             <h1 className="text-xl font-bold">Invoicing</h1>
           </div>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            New Invoice
-          </Button>
+          <InvoiceModal
+            onSave={(data) => {
+              console.log("New invoice:", data)
+              // In a real app, you would save this to your backend
+              alert("Invoice generated successfully!")
+            }}
+          />
         </div>
       </header>
 
@@ -130,11 +135,19 @@ export default function InvoicingPage() {
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-2">
-                                <Button variant="ghost" size="icon">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => alert(`Downloading invoice ${invoice.id}`)}
+                                >
                                   <Download className="h-4 w-4" />
                                 </Button>
                                 {invoice.status !== "Paid" && (
-                                  <Button variant="ghost" size="icon">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => alert(`Marking invoice ${invoice.id} as paid`)}
+                                  >
                                     <Check className="h-4 w-4" />
                                   </Button>
                                 )}
@@ -216,7 +229,15 @@ export default function InvoicingPage() {
                     <Input id="amount" placeholder="0.00" type="number" />
                   </div>
 
-                  <Button className="w-full">Generate Invoice</Button>
+                  <Button
+                    className="w-full"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      alert("Quick invoice generated successfully!")
+                    }}
+                  >
+                    Generate Invoice
+                  </Button>
                 </form>
               </CardContent>
             </Card>
