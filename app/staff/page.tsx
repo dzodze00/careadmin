@@ -1,11 +1,37 @@
+"use client"
+
+import { useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Search, Plus, Filter, Download, User, Calendar, CheckCircle, AlertTriangle } from "lucide-react"
+import { Search, Plus, Download, User, Calendar, CheckCircle, AlertTriangle } from "lucide-react"
 
 export default function StaffManagementPage() {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [activeTab, setActiveTab] = useState("all")
+
+  const handleAddStaff = () => {
+    alert("Opening staff creation form")
+  }
+
+  const handleViewStaff = (staff) => {
+    alert(`Viewing details for staff member: ${staff.name}`)
+  }
+
+  const handleEditStaff = (staff) => {
+    alert(`Editing staff member: ${staff.name}`)
+  }
+
+  const handleExport = () => {
+    alert("Exporting staff data")
+  }
+
+  const handleViewAllRenewals = () => {
+    alert("Viewing all credential renewals")
+  }
+
   return (
     <div className="container py-6">
       <div className="mb-6 flex items-center justify-between">
@@ -13,13 +39,13 @@ export default function StaffManagementPage() {
           <h1 className="text-3xl font-bold tracking-tight">Staff Management</h1>
           <p className="text-muted-foreground">Manage staff, credentials, and scheduling</p>
         </div>
-        <Button>
+        <Button onClick={handleAddStaff}>
           <Plus className="mr-2 h-4 w-4" />
           Add Staff Member
         </Button>
       </div>
 
-      <Tabs defaultValue="all" className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <div className="flex items-center justify-between">
           <TabsList>
             <TabsTrigger value="all">All Staff</TabsTrigger>
@@ -31,12 +57,15 @@ export default function StaffManagementPage() {
           <div className="flex items-center gap-2">
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input type="search" placeholder="Search staff..." className="w-[200px] pl-8 md:w-[300px]" />
+              <Input
+                type="search"
+                placeholder="Search staff..."
+                className="w-[200px] pl-8 md:w-[300px]"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
-            <Button variant="outline" size="icon">
-              <Filter className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon">
+            <Button variant="outline" size="icon" onClick={handleExport}>
               <Download className="h-4 w-4" />
             </Button>
           </div>
@@ -105,10 +134,10 @@ export default function StaffManagementPage() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" onClick={() => handleViewStaff(staff)}>
                               View
                             </Button>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" onClick={() => handleEditStaff(staff)}>
                               Edit
                             </Button>
                           </div>
@@ -207,7 +236,7 @@ export default function StaffManagementPage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" onClick={handleViewAllRenewals}>
                   <Calendar className="mr-2 h-4 w-4" />
                   View All Renewals
                 </Button>
