@@ -22,8 +22,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 export function UploadDocumentModal() {
   const [open, setOpen] = useState(false)
   const [formData, setFormData] = useState({
-    name: "",
-    type: "",
+    documentName: "",
+    documentType: "",
     patient: "",
     state: "",
     file: null as File | null,
@@ -50,12 +50,12 @@ export function UploadDocumentModal() {
     console.log("Uploading document:", formData)
 
     // Show success message
-    alert(`Document "${formData.name}" uploaded successfully!`)
+    alert(`Document ${formData.documentName} uploaded successfully!`)
 
     // Reset form and close dialog
     setFormData({
-      name: "",
-      type: "",
+      documentName: "",
+      documentType: "",
       patient: "",
       state: "",
       file: null,
@@ -71,35 +71,39 @@ export function UploadDocumentModal() {
           Upload Document
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[525px]">
+      <DialogContent className="sm:max-w-[525px] max-h-[90vh] overflow-y-auto z-[100]">
         <form onSubmit={handleSubmit}>
-          <DialogHeader>
+          <DialogHeader className="sticky top-0 bg-background z-10 pb-4">
             <DialogTitle>Upload Document</DialogTitle>
-            <DialogDescription>Upload a document to the system. Fill in the details below.</DialogDescription>
+            <DialogDescription>Upload a document to the system.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
+              <Label htmlFor="documentName" className="text-right">
                 Document Name
               </Label>
               <Input
-                id="name"
-                name="name"
-                value={formData.name}
+                id="documentName"
+                name="documentName"
+                value={formData.documentName}
                 onChange={handleChange}
                 className="col-span-3"
                 required
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="type" className="text-right">
+              <Label htmlFor="documentType" className="text-right">
                 Document Type
               </Label>
-              <Select value={formData.type} onValueChange={(value) => handleSelectChange("type", value)}>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select type" />
+              <Select
+                value={formData.documentType}
+                onValueChange={(value) => handleSelectChange("documentType", value)}
+                name="documentType"
+              >
+                <SelectTrigger id="documentType" className="col-span-3">
+                  <SelectValue placeholder="Select document type" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent position="popper">
                   <SelectItem value="Consent">Consent Form</SelectItem>
                   <SelectItem value="Assessment">Assessment</SelectItem>
                   <SelectItem value="Care Plan">Care Plan</SelectItem>
@@ -113,16 +117,23 @@ export function UploadDocumentModal() {
               <Label htmlFor="patient" className="text-right">
                 Patient
               </Label>
-              <Select value={formData.patient} onValueChange={(value) => handleSelectChange("patient", value)}>
-                <SelectTrigger className="col-span-3">
+              <Select
+                value={formData.patient}
+                onValueChange={(value) => handleSelectChange("patient", value)}
+                name="patient"
+              >
+                <SelectTrigger id="patient" className="col-span-3">
                   <SelectValue placeholder="Select patient" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent position="popper">
                   <SelectItem value="Eleanor Johnson">Eleanor Johnson</SelectItem>
                   <SelectItem value="Robert Williams">Robert Williams</SelectItem>
                   <SelectItem value="Patricia Brown">Patricia Brown</SelectItem>
                   <SelectItem value="Michael Miller">Michael Miller</SelectItem>
                   <SelectItem value="Jennifer Davis">Jennifer Davis</SelectItem>
+                  <SelectItem value="William Wilson">William Wilson</SelectItem>
+                  <SelectItem value="Elizabeth Taylor">Elizabeth Taylor</SelectItem>
+                  <SelectItem value="David Anderson">David Anderson</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -130,27 +141,28 @@ export function UploadDocumentModal() {
               <Label htmlFor="state" className="text-right">
                 State
               </Label>
-              <Select value={formData.state} onValueChange={(value) => handleSelectChange("state", value)}>
-                <SelectTrigger className="col-span-3">
+              <Select value={formData.state} onValueChange={(value) => handleSelectChange("state", value)} name="state">
+                <SelectTrigger id="state" className="col-span-3">
                   <SelectValue placeholder="Select state" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent position="popper">
                   <SelectItem value="CA">California (CA)</SelectItem>
                   <SelectItem value="FL">Florida (FL)</SelectItem>
                   <SelectItem value="GA">Georgia (GA)</SelectItem>
                   <SelectItem value="OH">Ohio (OH)</SelectItem>
+                  <SelectItem value="NC">North Carolina (NC)</SelectItem>
                   <SelectItem value="TX">Texas (TX)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="file" className="text-right">
-                File
+                Document File
               </Label>
-              <Input id="file" type="file" onChange={handleFileChange} className="col-span-3" required />
+              <Input id="file" name="file" type="file" onChange={handleFileChange} className="col-span-3" required />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="sticky bottom-0 bg-background pt-2">
             <Button type="submit">Upload Document</Button>
           </DialogFooter>
         </form>
