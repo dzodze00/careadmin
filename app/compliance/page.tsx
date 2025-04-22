@@ -118,8 +118,112 @@ const stateRequirements = {
   },
 }
 
+// Fixed data for the page
+const federalRequirements = [
+  {
+    name: "Quarterly Medicaid Report",
+    description: "Q1 2025 service documentation and billing summary",
+    status: "Due in 5 days",
+  },
+  {
+    name: "Medicare Cost Report",
+    description: "Annual cost reporting for Medicare services",
+    status: "Complete",
+  },
+  {
+    name: "OASIS Submission",
+    description: "Outcome and Assessment Information Set data",
+    status: "Complete",
+  },
+  {
+    name: "CMS-485 Home Health Certification",
+    description: "Physician certification for home health services",
+    status: "Complete",
+  },
+  {
+    name: "Medicare Quality Reporting",
+    description: "Quality metrics for home health services",
+    status: "Complete",
+  },
+]
+
+const regulatoryChanges = [
+  {
+    title: "Medicare Home Health Payment Rate Update",
+    description: "CMS is updating payment rates for home health services with new case-mix adjustments.",
+    effectiveDate: "January 1, 2026",
+    program: "Medicare",
+  },
+  {
+    title: "New EVV Requirements for Therapy Services",
+    description: "Electronic Visit Verification will be required for all therapy services under Medicaid.",
+    effectiveDate: "July 1, 2025",
+    program: "Medicaid",
+  },
+  {
+    title: "Updated OASIS-E Assessment Requirements",
+    description: "New data elements added to the OASIS-E assessment for Medicare patients.",
+    effectiveDate: "October 1, 2025",
+    program: "Medicare",
+  },
+]
+
+const documentationRequirements = [
+  {
+    title: "Plan of Care (CMS-485)",
+    description: "Comprehensive care plan with physician certification",
+    states: ["All States"],
+    program: "Medicare",
+  },
+  {
+    title: "Face-to-Face Documentation",
+    description: "Physician documentation of face-to-face encounter",
+    states: ["All States"],
+    program: "Medicare",
+  },
+  {
+    title: "OASIS Assessment",
+    description: "Outcome and Assessment Information Set",
+    states: ["All States"],
+    program: "Medicare",
+  },
+  {
+    title: "Treatment Authorization Request (TAR)",
+    description: "Prior authorization for Medi-Cal services",
+    states: ["CA"],
+    program: "Medicaid",
+  },
+  {
+    title: "Texas Medicaid Prior Authorization",
+    description: "Texas-specific prior authorization form",
+    states: ["TX"],
+    program: "Medicaid",
+  },
+  {
+    title: "Florida Medicaid Authorization",
+    description: "Florida-specific authorization requirements",
+    states: ["FL"],
+    program: "Medicaid",
+  },
+]
+
 export default function CompliancePage() {
-  const { selectedStates } = useStateContext()
+  // Default selected states if context is not available
+  const defaultStates = ["CA", "FL", "TX", "NY", "OH"]
+
+  // Initialize state with default values
+  const [selectedStates, setSelectedStates] = useState(defaultStates)
+
+  // Attempt to use the context, but provide fallback for SSR
+  const context = useStateContext()
+
+  // Update selectedStates if context is available
+  useEffect(() => {
+    if (context && context.selectedStates) {
+      setSelectedStates(context.selectedStates)
+    }
+  }, [context])
+
   const [filteredRequirements, setFilteredRequirements] = useState([])
   const [filteredEvvCompliance, setFilteredEvvCompliance] = useState([])
 
@@ -127,10 +231,13 @@ export default function CompliancePage() {
   useEffect(() => {
     // Filter requirements based on selected states
     const requirements = selectedStates
-      .map((state) => ({
-        stateCode: state,
-        ...stateRequirements[state],
-      }))
+      .map((state) => {
+        if (!stateRequirements[state]) return null
+        return {
+          stateCode: state,
+          ...stateRequirements[state],
+        }
+      })
       .filter(Boolean)
 
     setFilteredRequirements(requirements)
@@ -392,8 +499,8 @@ export default function CompliancePage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {federalRequirements.map((req) => (
-                  <div key={req.name} className="flex items-center justify-between border-b pb-3">
+                {federalRequirements.map((req, index) => (
+                  <div key={index} className="flex items-center justify-between border-b pb-3">
                     <div className="flex items-center gap-3">
                       {req.status === "Complete" ? (
                         <CheckCircle className="h-5 w-5 text-green-500" />
@@ -575,91 +682,3 @@ function ComplianceStatusCard({ title, status, icon, color, description }) {
     </Card>
   )
 }
-
-const federalRequirements = [
-  {
-    name: "Quarterly Medicaid Report",
-    description: "Q1 2025 service documentation and billing summary",
-    status: "Due in 5 days",
-  },
-  {
-    name: "Medicare Cost Report",
-    description: "Annual cost reporting for Medicare services",
-    status: "Complete",
-  },
-  {
-    name: "OASIS Submission",
-    description: "Outcome and Assessment Information Set data",
-    status: "Complete",
-  },
-  {
-    name: "CMS-485 Home Health Certification",
-    description: "Physician certification for home health services",
-    status: "Complete",
-  },
-  {
-    name: "Medicare Quality Reporting",
-    description: "Quality metrics for home health services",
-    status: "Complete",
-  },
-]
-
-const regulatoryChanges = [
-  {
-    title: "Medicare Home Health Payment Rate Update",
-    description: "CMS is updating payment rates for home health services with new case-mix adjustments.",
-    effectiveDate: "January 1, 2026",
-    program: "Medicare",
-  },
-  {
-    title: "New EVV Requirements for Therapy Services",
-    description: "Electronic Visit Verification will be required for all therapy services under Medicaid.",
-    effectiveDate: "July 1, 2025",
-    program: "Medicaid",
-  },
-  {
-    title: "Updated OASIS-E Assessment Requirements",
-    description: "New data elements added to the OASIS-E assessment for Medicare patients.",
-    effectiveDate: "October 1, 2025",
-    program: "Medicare",
-  },
-]
-
-const documentationRequirements = [
-  {
-    title: "Plan of Care (CMS-485)",
-    description: "Comprehensive care plan with physician certification",
-    states: ["All States"],
-    program: "Medicare",
-  },
-  {
-    title: "Face-to-Face Documentation",
-    description: "Physician documentation of face-to-face encounter",
-    states: ["All States"],
-    program: "Medicare",
-  },
-  {
-    title: "OASIS Assessment",
-    description: "Outcome and Assessment Information Set",
-    states: ["All States"],
-    program: "Medicare",
-  },
-  {
-    title: "Treatment Authorization Request (TAR)",
-    description: "Prior authorization for Medi-Cal services",
-    states: ["CA"],
-    program: "Medicaid",
-  },
-  {
-    title: "Texas Medicaid Prior Authorization",
-    description: "Texas-specific prior authorization form",
-    states: ["TX"],
-    program: "Medicaid",
-  },
-  {
-    title: "Florida Medicaid Authorization",
-    description: "Florida-specific authorization requirements",
-    states: ["FL"],
-    program: "Medicaid",
-  },
-]
