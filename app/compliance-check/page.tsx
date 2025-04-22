@@ -1,3 +1,5 @@
+"use client"
+
 import { Check, FileText, Globe, Info, Search, Shield } from "lucide-react"
 import Link from "next/link"
 
@@ -9,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ComplianceChecklist } from "./checklist"
 
 export default function ComplianceCheckPage() {
   return (
@@ -48,6 +51,8 @@ export default function ComplianceCheckPage() {
               before they impact your operations.
             </AlertDescription>
           </Alert>
+
+          <ComplianceChecklist />
 
           <div className="mb-6 grid gap-6 md:grid-cols-4">
             <Card>
