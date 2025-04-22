@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect } from "react"
-import ReactDOM from "react-dom"
+import { useEffect, useState } from "react"
+import { createPortal } from "react-dom"
 import { Download, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -22,53 +22,88 @@ interface DocumentViewerProps {
 }
 
 export function DocumentViewer({ document, onClose }: DocumentViewerProps) {
-  // Create portal container
-  useEffect(() => {
-    // Prevent scrolling
-    document.body.style.overflow = "hidden"
+  const [mounted, setMounted] = useState(false)
 
-    // Handle escape key
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose()
-    }
-    window.addEventListener("keydown", handleEsc)
+  useEffect(() => {
+    setMounted(true)
+    document.body.style.overflow = "hidden"
 
     return () => {
       document.body.style.overflow = ""
-      window.removeEventListener("keydown", handleEsc)
+      setMounted(false)
     }
-  }, [onClose])
+  }, [])
 
-  // Create portal element
-  const modalContent = (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]" onClick={onClose}>
+  if (!mounted) return null
+
+  return createPortal(
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]"
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 9999,
+      }}
+    >
       <div
-        className="bg-white w-full max-w-4xl max-h-[90vh] overflow-auto rounded-lg shadow-lg flex flex-col z-[10000]"
         onClick={(e) => e.stopPropagation()}
+        style={{
+          backgroundColor: "white",
+          borderRadius: "0.5rem",
+          width: "100%",
+          maxWidth: "64rem",
+          maxHeight: "90vh",
+          overflow: "auto",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+          display: "flex",
+          flexDirection: "column",
+          position: "relative",
+          zIndex: 10000,
+        }}
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b bg-white">
-          <h2 className="text-xl font-bold">{document.name}</h2>
+        <div
+          style={{
+            position: "sticky",
+            top: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "1rem",
+            borderBottom: "1px solid #e5e7eb",
+            backgroundColor: "white",
+            zIndex: 10,
+          }}
+        >
+          <h2 style={{ fontSize: "1.25rem", fontWeight: "bold" }}>{document.name}</h2>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-5 w-5" />
           </Button>
         </div>
 
-        <div className="flex-1 p-6 space-y-6">
-          <div className="grid grid-cols-2 gap-4">
+        <div style={{ flex: 1, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1rem" }}>
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground">Document Type</h3>
+              <h3 style={{ fontSize: "0.875rem", fontWeight: 500, color: "#6b7280" }}>Document Type</h3>
               <p>{document.type}</p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground">Patient</h3>
+              <h3 style={{ fontSize: "0.875rem", fontWeight: 500, color: "#6b7280" }}>Patient</h3>
               <p>{document.patient}</p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground">Date</h3>
+              <h3 style={{ fontSize: "0.875rem", fontWeight: 500, color: "#6b7280" }}>Date</h3>
               <p>{document.date}</p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground">Status</h3>
+              <h3 style={{ fontSize: "0.875rem", fontWeight: 500, color: "#6b7280" }}>Status</h3>
               <Badge
                 className={
                   document.status === "Complete"
@@ -83,59 +118,93 @@ export function DocumentViewer({ document, onClose }: DocumentViewerProps) {
             </div>
           </div>
 
-          <div className="border rounded-md p-4 bg-gray-50">
-            <h3 className="font-medium mb-2">Document Content</h3>
+          <div
+            style={{
+              border: "1px solid #e5e7eb",
+              borderRadius: "0.375rem",
+              padding: "1rem",
+              backgroundColor: "#f9fafb",
+            }}
+          >
+            <h3 style={{ fontWeight: 500, marginBottom: "0.5rem" }}>Document Content</h3>
 
-            <div className="border p-6 bg-white rounded min-h-[400px]">
-              <h2 className="text-xl font-bold mb-4">{document.name}</h2>
+            <div
+              style={{
+                border: "1px solid #e5e7eb",
+                padding: "1.5rem",
+                backgroundColor: "white",
+                borderRadius: "0.375rem",
+                minHeight: "400px",
+              }}
+            >
+              <h2 style={{ fontSize: "1.25rem", fontWeight: "bold", marginBottom: "1rem" }}>{document.name}</h2>
 
-              <section className="mb-6">
-                <h3 className="text-lg font-medium mb-2">Patient Information</h3>
-                <div className="grid grid-cols-2 gap-4">
+              <section style={{ marginBottom: "1.5rem" }}>
+                <h3 style={{ fontSize: "1.125rem", fontWeight: 500, marginBottom: "0.5rem" }}>Patient Information</h3>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1rem" }}>
                   <div>
-                    <p className="text-sm text-muted-foreground">Name</p>
-                    <p className="font-medium">{document.patient}</p>
+                    <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>Name</p>
+                    <p style={{ fontWeight: 500 }}>{document.patient}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">ID</p>
-                    <p className="font-medium">{document.patientId}</p>
+                    <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>ID</p>
+                    <p style={{ fontWeight: 500 }}>{document.patientId}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Date</p>
-                    <p className="font-medium">{document.date}</p>
+                    <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>Date</p>
+                    <p style={{ fontWeight: 500 }}>{document.date}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">State</p>
-                    <p className="font-medium">{document.state}</p>
+                    <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>State</p>
+                    <p style={{ fontWeight: 500 }}>{document.state}</p>
                   </div>
                 </div>
               </section>
 
-              <section className="mb-6">
-                <h3 className="text-lg font-medium mb-2">Provider Information</h3>
-                <div className="grid grid-cols-2 gap-4">
+              <section style={{ marginBottom: "1.5rem" }}>
+                <h3 style={{ fontSize: "1.125rem", fontWeight: 500, marginBottom: "0.5rem" }}>Provider Information</h3>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1rem" }}>
                   <div>
-                    <p className="text-sm text-muted-foreground">Provider</p>
-                    <p className="font-medium">Home Health Care Services</p>
+                    <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>Provider</p>
+                    <p style={{ fontWeight: 500 }}>Home Health Care Services</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Provider ID</p>
-                    <p className="font-medium">HHA-12345</p>
+                    <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>Provider ID</p>
+                    <p style={{ fontWeight: 500 }}>HHA-12345</p>
                   </div>
                 </div>
               </section>
 
               <section>
-                <h3 className="text-lg font-medium mb-2">Document Content</h3>
-                <div className="border p-4 rounded bg-gray-50">
-                  <p className="whitespace-pre-line">{document.content || "This is the content of the document."}</p>
+                <h3 style={{ fontSize: "1.125rem", fontWeight: 500, marginBottom: "0.5rem" }}>Document Content</h3>
+                <div
+                  style={{
+                    border: "1px solid #e5e7eb",
+                    padding: "1rem",
+                    borderRadius: "0.375rem",
+                    backgroundColor: "#f9fafb",
+                  }}
+                >
+                  <p style={{ whiteSpace: "pre-line" }}>{document.content || "This is the content of the document."}</p>
                 </div>
               </section>
             </div>
           </div>
         </div>
 
-        <div className="sticky bottom-0 z-10 flex justify-end gap-2 p-4 border-t bg-white">
+        <div
+          style={{
+            position: "sticky",
+            bottom: 0,
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: "0.5rem",
+            padding: "1rem",
+            borderTop: "1px solid #e5e7eb",
+            backgroundColor: "white",
+            zIndex: 10,
+          }}
+        >
           <Button variant="outline" onClick={onClose}>
             Close
           </Button>
@@ -145,9 +214,7 @@ export function DocumentViewer({ document, onClose }: DocumentViewerProps) {
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
-
-  // Use portal to render outside of normal DOM hierarchy
-  return ReactDOM.createPortal(modalContent, document.body)
 }
