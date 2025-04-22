@@ -1,3 +1,4 @@
+"use client"
 import { Check, ChevronDown, FileText, Filter, Globe, Info, Search } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -8,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { ComplianceUpdateModal } from "./compliance-update-modal"
 
 export default function StateCompliancePage() {
   return (
@@ -157,10 +159,16 @@ export default function StateCompliancePage() {
                             </div>
                           </div>
                           <div className="mt-4 flex justify-end gap-2">
-                            <Button variant="outline" size="sm">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => alert(`Viewing details for ${state.name}`)}
+                            >
                               View Details
                             </Button>
-                            <Button size="sm">Manage Registration</Button>
+                            <Button size="sm" onClick={() => alert(`Managing registration for ${state.name}`)}>
+                              Manage Registration
+                            </Button>
                           </div>
                         </CollapsibleContent>
                       </Collapsible>
@@ -244,7 +252,11 @@ export default function StateCompliancePage() {
                         </div>
 
                         <div className="mt-4 flex justify-end">
-                          <Button variant="outline" size="sm">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => alert(`Viewing billing guide for ${state.name}`)}
+                          >
                             <FileText className="mr-2 h-4 w-4" />
                             View Complete Billing Guide
                           </Button>
@@ -307,7 +319,15 @@ export default function StateCompliancePage() {
                         </div>
 
                         <div className="mt-4 flex justify-end">
-                          <Button size="sm">Update Compliance Status</Button>
+                          <ComplianceUpdateModal
+                            state={state}
+                            requirements={state.requirements}
+                            onSave={(data) => {
+                              console.log("Updated compliance:", data)
+                              // In a real app, you would save this to your backend
+                              alert(`Compliance status updated for ${state.name}`)
+                            }}
+                          />
                         </div>
                       </div>
                     ))}
