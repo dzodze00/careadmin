@@ -1,5 +1,8 @@
+"use client"
+
 import Link from "next/link"
 import { Download, FileText, Filter, Plus, Search, Upload } from "lucide-react"
+import { useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -8,8 +11,20 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { UploadDocumentModal } from "./upload-document-modal"
 
 export default function DocumentsPage() {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [documentTypeFilter, setDocumentTypeFilter] = useState("all")
+  const [patientFilter, setPatientFilter] = useState("all")
+
+  const filteredDocuments = recentDocuments.filter((doc) => {
+    const matchesSearch = doc.name.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesType = documentTypeFilter === "all" || doc.type === documentTypeFilter
+    const matchesPatient = patientFilter === "all" || doc.patient === patientFilter
+    return matchesSearch && matchesType && matchesPatient
+  })
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-10 border-b bg-background">
@@ -19,10 +34,7 @@ export default function DocumentsPage() {
             <h1 className="text-xl font-bold">Documents & Forms</h1>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline">
-              <Upload className="mr-2 h-4 w-4" />
-              Upload Document
-            </Button>
+            <UploadDocumentModal />
             <Button>
               <Plus className="mr-2 h-4 w-4" />
               New Form
@@ -36,31 +48,40 @@ export default function DocumentsPage() {
           <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input type="search" placeholder="Search documents..." className="pl-8 w-[250px]" />
+              <Input
+                type="search"
+                placeholder="Search documents..."
+                className="pl-8 w-[250px]"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
             <div className="flex flex-wrap gap-2">
-              <Select defaultValue="all">
+              <Select value={documentTypeFilter} onValueChange={setDocumentTypeFilter}>
                 <SelectTrigger className="w-[150px]">
                   <SelectValue placeholder="Document type" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="consent">Consent Forms</SelectItem>
-                  <SelectItem value="assessment">Assessments</SelectItem>
-                  <SelectItem value="plan">Care Plans</SelectItem>
-                  <SelectItem value="visit">Visit Notes</SelectItem>
-                  <SelectItem value="billing">Billing Forms</SelectItem>
+                  <SelectItem value="Consent">Consent Forms</SelectItem>
+                  <SelectItem value="Assessment">Assessments</SelectItem>
+                  <SelectItem value="Care Plan">Care Plans</SelectItem>
+                  <SelectItem value="Visit Note">Visit Notes</SelectItem>
+                  <SelectItem value="Clinical">Clinical Forms</SelectItem>
+                  <SelectItem value="Authorization">Authorization</SelectItem>
                 </SelectContent>
               </Select>
-              <Select defaultValue="all">
+              <Select value={patientFilter} onValueChange={setPatientFilter}>
                 <SelectTrigger className="w-[150px]">
                   <SelectValue placeholder="Patient" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Patients</SelectItem>
-                  <SelectItem value="eleanor">Eleanor Johnson</SelectItem>
-                  <SelectItem value="robert">Robert Williams</SelectItem>
-                  <SelectItem value="patricia">Patricia Brown</SelectItem>
+                  <SelectItem value="Eleanor Johnson">Eleanor Johnson</SelectItem>
+                  <SelectItem value="Robert Williams">Robert Williams</SelectItem>
+                  <SelectItem value="Patricia Brown">Patricia Brown</SelectItem>
+                  <SelectItem value="Michael Miller">Michael Miller</SelectItem>
+                  <SelectItem value="Jennifer Davis">Jennifer Davis</SelectItem>
                 </SelectContent>
               </Select>
               <Button variant="outline" size="icon">
@@ -93,7 +114,7 @@ export default function DocumentsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {recentDocuments.map((doc, index) => (
+                      {filteredDocuments.map((doc, index) => (
                         <TableRow key={index}>
                           <TableCell className="font-medium">
                             <Link href={`/documents/${doc.id}`} className="hover:underline">
@@ -123,10 +144,14 @@ export default function DocumentsPage() {
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
-                              <Button variant="ghost" size="sm">
+                              <Button variant="ghost" size="sm" onClick={() => alert(`Viewing document: ${doc.name}`)}>
                                 View
                               </Button>
-                              <Button variant="ghost" size="sm">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => alert(`Downloading document: ${doc.name}`)}
+                              >
                                 <Download className="h-4 w-4" />
                               </Button>
                             </div>
