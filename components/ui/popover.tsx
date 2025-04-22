@@ -44,7 +44,16 @@ const Popover = ({ children }: PopoverProps) => {
 
 const usePopover = () => {
   const context = React.useContext(PopoverContext)
-  if (!context) {
+  if (context === undefined) {
+    // Instead of throwing an error, return a default context during SSR
+    if (typeof window === "undefined") {
+      return {
+        open: false,
+        setOpen: () => {},
+        triggerRef: { current: null },
+        contentRef: { current: null },
+      }
+    }
     throw new Error("usePopover must be used within a Popover provider")
   }
   return context
