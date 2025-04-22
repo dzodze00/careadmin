@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import { Check, FileText, Info, Key, Lock, Plus, Search, Shield, UserPlus, Users } from "lucide-react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -12,16 +15,69 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function UserManagementPage() {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [roleFilter, setRoleFilter] = useState("all")
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [locationFilter, setLocationFilter] = useState("all")
+
+  const filteredUsers = users.filter((user) => {
+    // Apply search filter
+    if (
+      searchQuery &&
+      !user.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      !user.email.toLowerCase().includes(searchQuery.toLowerCase())
+    ) {
+      return false
+    }
+
+    // Apply role filter
+    if (roleFilter !== "all") {
+      const roleValue =
+        roleFilter === "admin"
+          ? "Administrator"
+          : roleFilter === "billing"
+            ? "Billing Staff"
+            : roleFilter === "clinical"
+              ? "Clinical Staff"
+              : "Office Staff"
+      if (user.role !== roleValue) return false
+    }
+
+    // Apply status filter
+    if (statusFilter !== "all" && user.status.toLowerCase() !== statusFilter) {
+      return false
+    }
+
+    // Apply location filter
+    if (locationFilter !== "all" && user.location.toLowerCase() !== locationFilter) {
+      return false
+    }
+
+    return true
+  })
+
+  const handleAddUser = () => {
+    alert("Opening user creation form")
+  }
+
+  const handleEditUser = (user) => {
+    alert(`Editing user: ${user.name}`)
+  }
+
+  const handleLockUser = (user) => {
+    alert(`${user.status === "Active" ? "Locking" : "Unlocking"} user: ${user.name}`)
+  }
+
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-10 border-b bg-background">
+    <div className="flex min-h-screen flex-col">\
+      <header="sticky top-0 z-10 border-b bg-background">
         <div className="container flex h-16 items-center justify-between py-4">
           <div className="flex items-center gap-2">
             <Users className="h-6 w-6" />
             <h1 className="text-xl font-bold">User Management</h1>
           </div>
           <div className="flex items-center gap-2">
-            <Button>
+            <Button onClick={handleAddUser}>
               <UserPlus className="mr-2 h-4 w-4" />
               Add User
             </Button>
@@ -42,10 +98,16 @@ export default function UserManagementPage() {
           <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input type="search" placeholder="Search users..." className="pl-8 w-[250px]" />
+              <Input 
+                type="search" 
+                placeholder="Search users..." 
+                className="pl-8 w-[250px]" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
             <div className="flex flex-wrap gap-2">
-              <Select defaultValue="all">
+              <Select value={roleFilter} onValueChange={setRoleFilter}>
                 <SelectTrigger className="w-[150px]">
                   <SelectValue placeholder="Role" />
                 </SelectTrigger>
@@ -111,7 +173,7 @@ export default function UserManagementPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {users.map((user, index) => (
+                      {filteredUsers.map((user, index) => (
                         <TableRow key={index}>
                           <TableCell className="font-medium">{user.name}</TableCell>
                           <TableCell>{user.email}</TableCell>
@@ -148,10 +210,18 @@ export default function UserManagementPage() {
                           <TableCell>{user.lastLogin}</TableCell>
                           <TableCell>
                             <div className="flex gap-2">
-                              <Button variant="outline" size="sm">
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => handleEditUser(user)}
+                              >
                                 Edit
                               </Button>
-                              <Button variant="outline" size="sm">
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => handleLockUser(user)}
+                              >
                                 <Lock className="h-4 w-4" />
                               </Button>
                             </div>
