@@ -73,7 +73,7 @@ const DialogClose = ({ children, ...props }: React.ButtonHTMLAttributes<HTMLButt
 
 const DialogOverlay = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => {
-    const { open, setOpen } = useDialog()
+    const { open } = useDialog()
 
     if (!open) return null
 
@@ -81,11 +81,10 @@ const DialogOverlay = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTML
       <div
         ref={ref}
         className={cn(
-          "fixed inset-0 z-50 bg-black/80 backdrop-blur-sm",
+          "fixed inset-0 z-[999] bg-black/80 backdrop-blur-sm",
           open ? "animate-in fade-in-0" : "animate-out fade-out-0",
           className,
         )}
-        onClick={() => setOpen(false)}
         {...props}
       />
     )
@@ -99,13 +98,14 @@ const DialogContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTML
 
     if (!open) return null
 
+    // Create a portal to render the dialog outside the normal DOM hierarchy
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center">
-        <DialogOverlay />
+      <div className="fixed inset-0 z-[1000] flex items-center justify-center">
+        <DialogOverlay onClick={() => setOpen(false)} />
         <div
           ref={ref}
           className={cn(
-            "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200",
+            "fixed left-[50%] top-[50%] z-[1001] grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200",
             open ? "animate-in fade-in-0 zoom-in-95" : "animate-out fade-out-0 zoom-out-95",
             "slide-in-from-left-1/2 slide-in-from-top-[48%]",
             className,
