@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import { Calendar, Check, Clock, Download, Filter, Plus, Search } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -19,12 +22,25 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 
 export default function PayrollPage() {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [payPeriod, setPayPeriod] = useState("current")
+  const [staffType, setStaffType] = useState("all")
+  const [activeTab, setActiveTab] = useState("hours")
+
+  const handleExport = () => {
+    alert("Exporting payroll data")
+  }
+
+  const handleViewStaffDetails = (staff) => {
+    alert(`Viewing details for staff member: ${staff.name}`)
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Payroll Management</h2>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handleExport}>
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
@@ -164,14 +180,20 @@ export default function PayrollPage() {
         <div className="flex items-center gap-4">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input type="search" placeholder="Search staff..." className="pl-8 w-[250px]" />
+            <Input
+              type="search"
+              placeholder="Search staff..."
+              className="pl-8 w-[250px]"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
           <Button variant="outline" size="icon">
             <Filter className="h-4 w-4" />
           </Button>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Select defaultValue="current">
+          <Select value={payPeriod} onValueChange={setPayPeriod}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Pay period" />
             </SelectTrigger>
@@ -197,7 +219,7 @@ export default function PayrollPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="hours" className="mb-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
         <TabsList className="mb-4">
           <TabsTrigger value="hours">Hours & Wages</TabsTrigger>
           <TabsTrigger value="deductions">Deductions & Benefits</TabsTrigger>
@@ -229,7 +251,14 @@ export default function PayrollPage() {
                   {staffHours.map((staff, index) => (
                     <TableRow key={index}>
                       <TableCell className="font-medium">
-                        <Link href="#" className="hover:underline">
+                        <Link
+                          href="#"
+                          className="hover:underline"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            handleViewStaffDetails(staff)
+                          }}
+                        >
                           {staff.name}
                         </Link>
                       </TableCell>
