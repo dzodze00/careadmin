@@ -262,7 +262,7 @@ export default function DocumentsPage() {
                   <SelectTrigger className="w-full md:w-[180px]">
                     <SelectValue placeholder="Document type" />
                   </SelectTrigger>
-                  <SelectContent position="popper">
+                  <SelectContent>
                     <SelectItem value="all">All Types</SelectItem>
                     <SelectItem value="Consent">Consent Forms</SelectItem>
                     <SelectItem value="Assessment">Assessments</SelectItem>
@@ -276,7 +276,7 @@ export default function DocumentsPage() {
                   <SelectTrigger className="w-full md:w-[180px]">
                     <SelectValue placeholder="Patient" />
                   </SelectTrigger>
-                  <SelectContent position="popper">
+                  <SelectContent>
                     <SelectItem value="all">All Patients</SelectItem>
                     <SelectItem value="Eleanor Johnson">Eleanor Johnson</SelectItem>
                     <SelectItem value="Robert Williams">Robert Williams</SelectItem>
