@@ -1,4 +1,7 @@
-import { Download, FileText, Filter, Globe, Info, Plus, Search } from "lucide-react"
+"use client"
+
+import { useState } from "react"
+import { Download, FileText, Filter, Globe, Info, Search } from "lucide-react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
@@ -7,8 +10,24 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { TemplateViewer } from "./template-viewer"
+import { NewTemplateModal } from "./new-template-modal"
 
 export default function DocumentationTemplatesPage() {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [templateTypeFilter, setTemplateTypeFilter] = useState("all")
+  const [stateFilter, setStateFilter] = useState("all")
+
+  const filteredTemplates = documentTemplates.filter((template) => {
+    const matchesSearch =
+      template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      template.description.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesType = templateTypeFilter === "all" || template.type === templateTypeFilter
+    const matchesState =
+      stateFilter === "all" || template.states.includes(stateFilter) || template.states.includes("All States")
+    return matchesSearch && matchesType && matchesState
+  })
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-10 border-b bg-background">
@@ -18,7 +37,7 @@ export default function DocumentationTemplatesPage() {
             <h1 className="text-xl font-bold">State-Specific Documentation Templates</h1>
           </div>
           <div className="flex items-center gap-2">
-            <Select defaultValue="all">
+            <Select value={stateFilter} onValueChange={setStateFilter}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select state" />
               </SelectTrigger>
@@ -34,10 +53,7 @@ export default function DocumentationTemplatesPage() {
                 <SelectItem value="TX">Texas (TX)</SelectItem>
               </SelectContent>
             </Select>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              New Template
-            </Button>
+            <NewTemplateModal />
           </div>
         </div>
       </header>
@@ -64,20 +80,26 @@ export default function DocumentationTemplatesPage() {
               <div className="flex items-center justify-between mb-4">
                 <div className="relative w-[350px]">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input type="search" placeholder="Search templates..." className="pl-8" />
+                  <Input
+                    type="search"
+                    placeholder="Search templates..."
+                    className="pl-8"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
                 </div>
                 <div className="flex items-center gap-2">
-                  <Select defaultValue="all">
+                  <Select value={templateTypeFilter} onValueChange={setTemplateTypeFilter}>
                     <SelectTrigger className="w-[150px]">
                       <SelectValue placeholder="Template type" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Types</SelectItem>
-                      <SelectItem value="assessment">Assessment</SelectItem>
-                      <SelectItem value="care-plan">Care Plan</SelectItem>
-                      <SelectItem value="visit-note">Visit Note</SelectItem>
-                      <SelectItem value="discharge">Discharge</SelectItem>
-                      <SelectItem value="authorization">Authorization</SelectItem>
+                      <SelectItem value="Assessment">Assessment</SelectItem>
+                      <SelectItem value="Care Plan">Care Plan</SelectItem>
+                      <SelectItem value="Visit Note">Visit Note</SelectItem>
+                      <SelectItem value="Discharge">Discharge</SelectItem>
+                      <SelectItem value="Authorization">Authorization</SelectItem>
                     </SelectContent>
                   </Select>
                   <Button variant="outline" size="icon">
@@ -87,7 +109,7 @@ export default function DocumentationTemplatesPage() {
               </div>
 
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {documentTemplates.map((template, index) => (
+                {filteredTemplates.map((template, index) => (
                   <Card key={index}>
                     <CardHeader className="pb-2">
                       <div className="flex items-center justify-between">
@@ -110,11 +132,8 @@ export default function DocumentationTemplatesPage() {
                       </div>
                     </CardContent>
                     <CardFooter className="flex gap-2">
-                      <Button variant="outline" className="flex-1">
-                        <FileText className="mr-2 h-4 w-4" />
-                        Preview
-                      </Button>
-                      <Button className="flex-1"> /> Preview</Button>
+                      <TemplateViewer template={template} />
+                      <Button className="flex-1">Edit Template</Button>
                       <Button className="flex-1">
                         <Download className="mr-2 h-4 w-4" />
                         Use Template
