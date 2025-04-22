@@ -259,7 +259,11 @@ export default function EVVDashboardPage() {
                             </TableCell>
                             <TableCell>{state.lastAudit}</TableCell>
                             <TableCell>
-                              <Button variant="outline" size="sm">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => alert(`Viewing EVV details for ${state.name}`)}
+                              >
                                 View Details
                               </Button>
                             </TableCell>
@@ -377,7 +381,12 @@ export default function EVVDashboardPage() {
                           )}
                         </div>
                       </div>
-                      <Button variant="ghost" size="sm" className="ml-auto">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="ml-auto"
+                        onClick={() => alert(`Managing settings for ${integration.name}`)}
+                      >
                         <Settings className="h-4 w-4" />
                       </Button>
                     </div>
@@ -385,7 +394,11 @@ export default function EVVDashboardPage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => alert("Opening EVV integration management")}
+                >
                   Manage Integrations
                 </Button>
               </CardFooter>
@@ -407,7 +420,7 @@ export default function EVVDashboardPage() {
                           <p className="text-sm text-muted-foreground">{resource.description}</p>
                         </div>
                       </div>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={() => alert(`Viewing resource: ${resource.title}`)}>
                         View
                       </Button>
                     </div>
@@ -415,7 +428,7 @@ export default function EVVDashboardPage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" onClick={() => alert("Opening EVV resource library")}>
                   Access Resource Library
                 </Button>
               </CardFooter>
