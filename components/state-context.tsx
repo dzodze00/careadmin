@@ -24,15 +24,23 @@ export function StateProvider({ children }: { children: ReactNode }) {
   // You could add persistence here with localStorage or cookies
   useEffect(() => {
     // Optional: Load from localStorage
-    const savedStates = localStorage.getItem("selectedStates")
-    if (savedStates) {
-      setSelectedStates(JSON.parse(savedStates))
+    try {
+      const savedStates = localStorage.getItem("selectedStates")
+      if (savedStates) {
+        setSelectedStates(JSON.parse(savedStates))
+      }
+    } catch (error) {
+      console.error("Error loading states from localStorage:", error)
     }
   }, [])
 
   // Save changes to localStorage
   useEffect(() => {
-    localStorage.setItem("selectedStates", JSON.stringify(selectedStates))
+    try {
+      localStorage.setItem("selectedStates", JSON.stringify(selectedStates))
+    } catch (error) {
+      console.error("Error saving states to localStorage:", error)
+    }
   }, [selectedStates])
 
   return <StateContext.Provider value={{ selectedStates, setSelectedStates }}>{children}</StateContext.Provider>
@@ -41,6 +49,7 @@ export function StateProvider({ children }: { children: ReactNode }) {
 // Custom hook to use the state context
 export function useStateContext() {
   const context = useContext(StateContext)
+
   if (context === undefined) {
     throw new Error("useStateContext must be used within a StateProvider")
   }
