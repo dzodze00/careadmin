@@ -5,19 +5,7 @@ import { Check, ChevronDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Popover, PopoverContent } from "@/components/ui/popover"
-
-const SelectContext = React.createContext<{
-  open: boolean
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>
-  value: string
-  onValueChange: (value: string) => void
-}>({
-  open: false,
-  setOpen: () => {},
-  value: "",
-  onValueChange: () => {},
-})
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 const Select = React.forwardRef<
   HTMLDivElement,
@@ -25,117 +13,117 @@ const Select = React.forwardRef<
     defaultValue?: string
     value?: string
     onValueChange?: (value: string) => void
-    open?: boolean
-    onOpenChange?: (open: boolean) => void
   }
->(
-  (
-    {
-      className,
-      defaultValue,
-      value: controlledValue,
-      onValueChange,
-      open: controlledOpen,
-      onOpenChange,
-      children,
-      ...props
-    },
-    ref,
-  ) => {
-    const [uncontrolledValue, setUncontrolledValue] = React.useState(defaultValue || "")
-    const [uncontrolledOpen, setUncontrolledOpen] = React.useState(false)
+>(({ className, defaultValue, value: controlledValue, onValueChange, children, ...props }, ref) => {
+  const [open, setOpen] = React.useState(false)
+  const [value, setValue] = React.useState(defaultValue || "")
 
-    const isControlledValue = controlledValue !== undefined
-    const value = isControlledValue ? controlledValue : uncontrolledValue
+  // Handle controlled component
+  React.useEffect(() => {
+    if (controlledValue !== undefined) {
+      setValue(controlledValue)
+    }
+  }, [controlledValue])
 
-    const isControlledOpen = controlledOpen !== undefined
-    const open = isControlledOpen ? controlledOpen : uncontrolledOpen
+  const handleValueChange = (newValue: string) => {
+    setValue(newValue)
+    if (onValueChange) {
+      onValueChange(newValue)
+    }
+    setOpen(false)
+  }
 
-    const setOpen = React.useCallback(
-      (newOpen: boolean) => {
-        if (isControlledOpen) {
-          onOpenChange?.(newOpen)
-        } else {
-          setUncontrolledOpen(newOpen)
-        }
-      },
-      [isControlledOpen, onOpenChange],
-    )
-
-    const handleValueChange = React.useCallback(
-      (newValue: string) => {
-        if (isControlledValue) {
-          onValueChange?.(newValue)
-        } else {
-          setUncontrolledValue(newValue)
-        }
-        onValueChange?.(newValue)
-        setOpen(false)
-      },
-      [isControlledValue, onValueChange, setOpen],
-    )
-
-    return (
-      <SelectContext.Provider value={{ open, setOpen, value, onValueChange: handleValueChange }}>
-        <div ref={ref} className={cn("relative w-full", className)} {...props}>
-          {children}
-        </div>
-      </SelectContext.Provider>
-    )
-  },
-)
+  return (
+    <div ref={ref} className={cn("relative w-full", className)} {...props}>
+      <Popover>
+        <PopoverTrigger asChild>
+          <div>
+            {React.Children.map(children, (child) => {
+              if (React.isValidElement(child) && child.type === SelectTrigger) {
+                return React.cloneElement(child as React.ReactElement<any>, {
+                  value,
+                  onClick: () => setOpen(!open),
+                })
+              }
+              return child
+            })}
+          </div>
+        </PopoverTrigger>
+        <PopoverContent className="w-[--radix-select-trigger-width] p-0">
+          {React.Children.map(children, (child) => {
+            if (React.isValidElement(child) && child.type === SelectContent) {
+              return React.cloneElement(child as React.ReactElement<any>, {
+                value,
+                onValueChange: handleValueChange,
+              })
+            }
+            return child
+          })}
+        </PopoverContent>
+      </Popover>
+    </div>
+  )
+})
 Select.displayName = "Select"
 
-const SelectTrigger = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>(
-  ({ className, children, ...props }, ref) => {
-    const { open, setOpen, value } = React.useContext(SelectContext)
+const SelectTrigger = React.forwardRef<
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement> & {
+    value?: string
+  }
+>(({ className, children, value, ...props }, ref) => {
+  // Find the selected item's label
+  let selectedLabel = value
+  React.Children.forEach(children, (child) => {
+    if (React.isValidElement(child) && child.props.value === value) {
+      selectedLabel = child.props.children
+    }
+  })
 
-    return (
-      <Button
-        ref={ref}
-        type="button"
-        variant="outline"
-        role="combobox"
-        aria-expanded={open}
-        className={cn("w-full justify-between font-normal", className)}
-        onClick={() => setOpen(!open)}
-        {...props}
-      >
-        <span className="flex-1 text-left">{children}</span>
-        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-      </Button>
-    )
-  },
-)
+  return (
+    <Button
+      ref={ref}
+      variant="outline"
+      role="combobox"
+      aria-expanded={props["aria-expanded"]}
+      className={cn("w-full justify-between font-normal", className)}
+      {...props}
+    >
+      <span className="flex-1 text-left">{selectedLabel || children}</span>
+      <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+    </Button>
+  )
+})
 SelectTrigger.displayName = "SelectTrigger"
 
 const SelectContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & {
-    position?: "item-aligned" | "popper"
-    sideOffset?: number
-    align?: "center" | "start" | "end"
+    value?: string
+    onValueChange?: (value: string) => void
   }
->(({ className, children, position = "popper", sideOffset = 4, align = "center", ...props }, ref) => {
-  const { open } = React.useContext(SelectContext)
-
-  if (!open) return null
-
+>(({ className, children, value, onValueChange, ...props }, ref) => {
   return (
-    <Popover open={open}>
-      <PopoverContent
-        ref={ref}
-        className={cn(
-          "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
-          className,
-        )}
-        sideOffset={sideOffset}
-        align={align}
-        {...props}
-      >
-        <div className="max-h-[var(--radix-popover-content-available-height)] overflow-auto">{children}</div>
-      </PopoverContent>
-    </Popover>
+    <div
+      ref={ref}
+      className={cn(
+        "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
+        className,
+      )}
+      {...props}
+    >
+      <div className="max-h-[var(--radix-select-content-available-height)] overflow-auto">
+        {React.Children.map(children, (child) => {
+          if (React.isValidElement(child) && child.type === SelectItem) {
+            return React.cloneElement(child as React.ReactElement<any>, {
+              selected: child.props.value === value,
+              onSelect: () => onValueChange?.(child.props.value),
+            })
+          }
+          return child
+        })}
+      </div>
+    </div>
   )
 })
 SelectContent.displayName = "SelectContent"
@@ -144,24 +132,23 @@ const SelectItem = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & {
     value: string
+    selected?: boolean
+    onSelect?: () => void
   }
->(({ className, children, value, ...props }, ref) => {
-  const { value: selectedValue, onValueChange } = React.useContext(SelectContext)
-  const isSelected = selectedValue === value
-
+>(({ className, children, selected, onSelect, ...props }, ref) => {
   return (
     <div
       ref={ref}
       className={cn(
         "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-        isSelected ? "bg-accent text-accent-foreground" : "hover:bg-accent hover:text-accent-foreground",
+        selected ? "bg-accent text-accent-foreground" : "hover:bg-accent hover:text-accent-foreground",
         className,
       )}
-      onClick={() => onValueChange(value)}
+      onClick={onSelect}
       {...props}
     >
       <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-        {isSelected && <Check className="h-4 w-4" />}
+        {selected && <Check className="h-4 w-4" />}
       </span>
       <span className="text-sm">{children}</span>
     </div>
@@ -175,11 +162,9 @@ const SelectValue = React.forwardRef<
     placeholder?: string
   }
 >(({ className, children, placeholder, ...props }, ref) => {
-  const { value } = React.useContext(SelectContext)
-
   return (
     <span ref={ref} className={cn("block truncate", className)} {...props}>
-      {value ? children : placeholder}
+      {children || placeholder}
     </span>
   )
 })
