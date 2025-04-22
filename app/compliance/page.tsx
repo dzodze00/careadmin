@@ -6,8 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { CheckCircle, AlertTriangle, Info, MapPin, Calendar, FileText } from "lucide-react"
+import { CheckCircle, AlertTriangle, Info, MapPin, Calendar, FileText, Download } from "lucide-react"
 import { useStateContext } from "@/components/state-context"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 // Real Medicare/Medicaid requirements by state
 const stateRequirements = {
@@ -124,26 +125,36 @@ const federalRequirements = [
     name: "Quarterly Medicaid Report",
     description: "Q1 2025 service documentation and billing summary",
     status: "Due in 5 days",
+    details:
+      "This quarterly report must include all Medicaid services provided during Q1 2025, including billing codes, patient information, and service dates. The report must be submitted electronically through the CMS portal by April 30, 2025.",
   },
   {
     name: "Medicare Cost Report",
     description: "Annual cost reporting for Medicare services",
     status: "Complete",
+    details:
+      "The annual Medicare Cost Report includes all costs associated with providing Medicare services for the fiscal year. This report has been completed and submitted to CMS on March 15, 2025.",
   },
   {
     name: "OASIS Submission",
     description: "Outcome and Assessment Information Set data",
     status: "Complete",
+    details:
+      "OASIS data for all Medicare patients has been submitted through the CMS OASIS system. The data includes comprehensive assessments at start of care, recertification, and discharge.",
   },
   {
     name: "CMS-485 Home Health Certification",
     description: "Physician certification for home health services",
     status: "Complete",
+    details:
+      "All CMS-485 forms have been completed and signed by physicians for Medicare patients. These forms include the plan of care, certification of homebound status, and medical necessity documentation.",
   },
   {
     name: "Medicare Quality Reporting",
     description: "Quality metrics for home health services",
     status: "Complete",
+    details:
+      "Quality metrics for Medicare home health services have been reported through the CMS Quality Reporting System. Metrics include patient improvement measures, hospitalization rates, and patient satisfaction scores.",
   },
 ]
 
@@ -174,36 +185,73 @@ const documentationRequirements = [
     description: "Comprehensive care plan with physician certification",
     states: ["All States"],
     program: "Medicare",
+    template: {
+      name: "Plan of Care (CMS-485)",
+      type: "Care Plan",
+      content: "This is a template for the Plan of Care (CMS-485) form required for Medicare patients.",
+      lastUpdated: "March 15, 2025",
+    },
   },
   {
     title: "Face-to-Face Documentation",
     description: "Physician documentation of face-to-face encounter",
     states: ["All States"],
     program: "Medicare",
+    template: {
+      name: "Face-to-Face Documentation",
+      type: "Assessment",
+      content: "This is a template for the Face-to-Face Documentation required for Medicare patients.",
+      lastUpdated: "February 10, 2025",
+    },
   },
   {
     title: "OASIS Assessment",
     description: "Outcome and Assessment Information Set",
     states: ["All States"],
     program: "Medicare",
+    template: {
+      name: "OASIS Assessment",
+      type: "Assessment",
+      content: "This is a template for the OASIS Assessment required for Medicare patients.",
+      lastUpdated: "January 5, 2025",
+    },
   },
   {
     title: "Treatment Authorization Request (TAR)",
     description: "Prior authorization for Medi-Cal services",
     states: ["CA"],
     program: "Medicaid",
+    template: {
+      name: "Treatment Authorization Request (TAR)",
+      type: "Authorization",
+      content:
+        "This is a template for the Treatment Authorization Request (TAR) required for Medi-Cal services in California.",
+      lastUpdated: "April 1, 2025",
+    },
   },
   {
     title: "Texas Medicaid Prior Authorization",
     description: "Texas-specific prior authorization form",
     states: ["TX"],
     program: "Medicaid",
+    template: {
+      name: "Texas Medicaid Prior Authorization",
+      type: "Authorization",
+      content: "This is a template for the Prior Authorization form required for Texas Medicaid services.",
+      lastUpdated: "March 20, 2025",
+    },
   },
   {
     title: "Florida Medicaid Authorization",
     description: "Florida-specific authorization requirements",
     states: ["FL"],
     program: "Medicaid",
+    template: {
+      name: "Florida Medicaid Authorization",
+      type: "Authorization",
+      content: "This is a template for the Authorization form required for Florida Medicaid services.",
+      lastUpdated: "February 28, 2025",
+    },
   },
 ]
 
@@ -213,6 +261,9 @@ export default function CompliancePage() {
 
   // Initialize state with default values
   const [selectedStates, setSelectedStates] = useState(defaultStates)
+  const [selectedRequirement, setSelectedRequirement] = useState(null)
+  const [selectedTemplate, setSelectedTemplate] = useState(null)
+  const [isRunningCheck, setIsRunningCheck] = useState(false)
 
   // Attempt to use the context, but provide fallback for SSR
   const context = useStateContext()
@@ -261,11 +312,24 @@ export default function CompliancePage() {
     setFilteredEvvCompliance(evvData)
   }, [selectedStates])
 
+  // Handle running compliance check
+  const handleRunComplianceCheck = () => {
+    setIsRunningCheck(true)
+
+    // Simulate a compliance check
+    setTimeout(() => {
+      setIsRunningCheck(false)
+      alert("Compliance check completed successfully! All systems are compliant.")
+    }, 2000)
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Compliance Center</h2>
-        <Button>Run Compliance Check</Button>
+        <Button onClick={handleRunComplianceCheck} disabled={isRunningCheck}>
+          {isRunningCheck ? "Running Check..." : "Run Compliance Check"}
+        </Button>
       </div>
 
       <Tabs defaultValue="overview" className="space-y-4">
@@ -523,7 +587,7 @@ export default function CompliancePage() {
                       >
                         {req.status}
                       </Badge>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={() => setSelectedRequirement(req)}>
                         Details
                       </Button>
                     </div>
@@ -633,7 +697,7 @@ export default function CompliancePage() {
                 {documentationRequirements.map((doc, index) => (
                   <div key={index} className="flex items-start gap-3 border-b pb-3">
                     <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
+                    <div className="flex-1">
                       <p className="font-medium">{doc.title}</p>
                       <p className="text-sm text-muted-foreground">{doc.description}</p>
                       <div className="mt-2 flex flex-wrap gap-2">
@@ -650,7 +714,12 @@ export default function CompliancePage() {
                         </Badge>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm" className="ml-auto">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="ml-auto"
+                      onClick={() => setSelectedTemplate(doc.template)}
+                    >
                       View Template
                     </Button>
                   </div>
@@ -660,6 +729,82 @@ export default function CompliancePage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Requirement Details Dialog */}
+      {selectedRequirement && (
+        <Dialog open={!!selectedRequirement} onOpenChange={() => setSelectedRequirement(null)}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>{selectedRequirement.name}</DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">Description</h3>
+                  <p>{selectedRequirement.description}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">Status</h3>
+                  <Badge
+                    className={
+                      selectedRequirement.status === "Complete"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-amber-100 text-amber-800"
+                    }
+                  >
+                    {selectedRequirement.status}
+                  </Badge>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">Details</h3>
+                  <p>{selectedRequirement.details}</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <Button onClick={() => setSelectedRequirement(null)}>Close</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Template Viewer Dialog */}
+      {selectedTemplate && (
+        <Dialog open={!!selectedTemplate} onOpenChange={() => setSelectedTemplate(null)}>
+          <DialogContent className="sm:max-w-[700px]">
+            <DialogHeader>
+              <DialogTitle>{selectedTemplate.name}</DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">Template Type</h3>
+                  <p>{selectedTemplate.type}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">Last Updated</h3>
+                  <p>{selectedTemplate.lastUpdated}</p>
+                </div>
+                <div className="border p-4 rounded-md bg-gray-50">
+                  <h3 className="font-medium mb-2">Template Content</h3>
+                  <div className="border p-4 bg-white rounded">
+                    <p>{selectedTemplate.content}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setSelectedTemplate(null)}>
+                Close
+              </Button>
+              <Button>
+                <Download className="mr-2 h-4 w-4" />
+                Download Template
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   )
 }
