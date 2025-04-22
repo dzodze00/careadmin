@@ -1,5 +1,8 @@
+"use client"
+
 import Link from "next/link"
-import { Calendar, FileText, Filter, Search, Upload, User, UserPlus } from "lucide-react"
+import { Calendar, FileText, Filter, Search, Upload, User } from "lucide-react"
+import { useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -7,8 +10,22 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { AddPatientModal } from "./add-patient-modal"
 
 export default function PatientsPage() {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [programFilter, setProgramFilter] = useState("all")
+
+  const filteredPatients = patients.filter((patient) => {
+    const matchesSearch =
+      patient.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      patient.id.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesStatus = statusFilter === "all" || patient.status === statusFilter
+    const matchesProgram = programFilter === "all" || patient.program === programFilter
+    return matchesSearch && matchesStatus && matchesProgram
+  })
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-10 border-b bg-background">
@@ -18,10 +35,7 @@ export default function PatientsPage() {
             <h1 className="text-xl font-bold">Patient Management</h1>
           </div>
           <div className="flex items-center gap-2">
-            <Button>
-              <UserPlus className="mr-2 h-4 w-4" />
-              Add Patient
-            </Button>
+            <AddPatientModal />
           </div>
         </div>
       </header>
@@ -31,29 +45,35 @@ export default function PatientsPage() {
           <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input type="search" placeholder="Search patients..." className="pl-8 w-[250px]" />
+              <Input
+                type="search"
+                placeholder="Search patients..."
+                className="pl-8 w-[250px]"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
             <div className="flex flex-wrap gap-2">
-              <Select defaultValue="all">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-[150px]">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="Active">Active</SelectItem>
+                  <SelectItem value="Inactive">Inactive</SelectItem>
+                  <SelectItem value="Pending">Pending</SelectItem>
                 </SelectContent>
               </Select>
-              <Select defaultValue="all">
+              <Select value={programFilter} onValueChange={setProgramFilter}>
                 <SelectTrigger className="w-[150px]">
                   <SelectValue placeholder="Program" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Programs</SelectItem>
-                  <SelectItem value="medicare">Medicare</SelectItem>
-                  <SelectItem value="medicaid">Medicaid</SelectItem>
-                  <SelectItem value="private">Private Pay</SelectItem>
+                  <SelectItem value="Medicare">Medicare</SelectItem>
+                  <SelectItem value="Medicaid">Medicaid</SelectItem>
+                  <SelectItem value="Private">Private Pay</SelectItem>
                 </SelectContent>
               </Select>
               <Button variant="outline" size="icon">
@@ -77,7 +97,7 @@ export default function PatientsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {patients.map((patient, index) => (
+                  {filteredPatients.map((patient, index) => (
                     <TableRow key={index}>
                       <TableCell className="font-medium">
                         <Link href={`/patients/${patient.id}`} className="hover:underline">
