@@ -1,3 +1,4 @@
+"use client"
 import { ArrowRight, Check, FileText, Globe, Info, Upload } from "lucide-react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -9,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { RegistrationModal } from "./registration-modal"
 
 export default function RegistrationPage() {
   return (
@@ -228,10 +230,14 @@ export default function RegistrationPage() {
                         </div>
 
                         <div className="mt-4 flex justify-end gap-2">
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" onClick={() => alert(`Viewing details for ${reg.state}`)}>
                             View Details
                           </Button>
-                          <Button variant="outline" size="sm">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => alert(`Updating information for ${reg.state}`)}
+                          >
                             Update Information
                           </Button>
                         </div>
@@ -270,7 +276,14 @@ export default function RegistrationPage() {
                           <p className="text-sm font-medium text-amber-600">Due: {renewal.dueDate}</p>
                           <p className="text-xs text-muted-foreground">{renewal.daysRemaining} days remaining</p>
                         </div>
-                        <Button size="sm">Start Renewal</Button>
+                        <RegistrationModal
+                          isRenewal={true}
+                          onSave={(data) => {
+                            console.log("Renewal:", data)
+                            // In a real app, you would save this to your backend
+                            alert(`Renewal started for ${data.state}`)
+                          }}
+                        />
                       </div>
                     ))}
                   </div>
