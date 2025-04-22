@@ -69,8 +69,8 @@ export default function UserManagementPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">\
-      <header="sticky top-0 z-10 border-b bg-background">
+    <div className="flex min-h-screen flex-col">
+      <header className="sticky top-0 z-10 border-b bg-background">
         <div className="container flex h-16 items-center justify-between py-4">
           <div className="flex items-center gap-2">
             <Users className="h-6 w-6" />
@@ -98,10 +98,10 @@ export default function UserManagementPage() {
           <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input 
-                type="search" 
-                placeholder="Search users..." 
-                className="pl-8 w-[250px]" 
+              <Input
+                type="search"
+                placeholder="Search users..."
+                className="pl-8 w-[250px]"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -210,18 +210,10 @@ export default function UserManagementPage() {
                           <TableCell>{user.lastLogin}</TableCell>
                           <TableCell>
                             <div className="flex gap-2">
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => handleEditUser(user)}
-                              >
+                              <Button variant="outline" size="sm" onClick={() => handleEditUser(user)}>
                                 Edit
                               </Button>
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => handleLockUser(user)}
-                              >
+                              <Button variant="outline" size="sm" onClick={() => handleLockUser(user)}>
                                 <Lock className="h-4 w-4" />
                               </Button>
                             </div>
