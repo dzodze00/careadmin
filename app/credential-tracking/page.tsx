@@ -1,3 +1,4 @@
+"use client"
 import { Check, Clock, Download, FileText, Filter, Search, Users } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -8,6 +9,7 @@ import { Progress } from "@/components/ui/progress"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { CredentialModal } from "./credential-modal"
 
 export default function CredentialTrackingPage() {
   return (
@@ -151,9 +153,14 @@ export default function CredentialTrackingPage() {
                           </TableCell>
                           <TableCell>{staff.nextExpiration}</TableCell>
                           <TableCell>
-                            <Button variant="outline" size="sm">
-                              View Details
-                            </Button>
+                            <CredentialModal
+                              staff={staff.name}
+                              onSave={(data) => {
+                                console.log("Credential details:", data)
+                                // In a real app, you would save this to your backend
+                                alert(`Credential details updated for ${staff.name}`)
+                              }}
+                            />
                           </TableCell>
                         </TableRow>
                       ))}
@@ -192,7 +199,11 @@ export default function CredentialTrackingPage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => alert("Viewing complete credential requirements guide")}
+                >
                   <FileText className="mr-2 h-4 w-4" />
                   View Complete Requirements Guide
                 </Button>
@@ -226,7 +237,16 @@ export default function CredentialTrackingPage() {
                         <p className="text-sm font-medium text-amber-600">Expires: {renewal.expirationDate}</p>
                         <p className="text-xs text-muted-foreground">{renewal.daysRemaining} days remaining</p>
                       </div>
-                      <Button size="sm">Start Renewal</Button>
+                      <CredentialModal
+                        staff={renewal.staff}
+                        credential={renewal.credential}
+                        isRenewal={true}
+                        onSave={(data) => {
+                          console.log("Credential renewal:", data)
+                          // In a real app, you would save this to your backend
+                          alert(`Renewal started for ${renewal.staff}'s ${renewal.credential}`)
+                        }}
+                      />
                     </div>
                   ))}
                 </div>
