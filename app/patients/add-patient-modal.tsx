@@ -73,9 +73,9 @@ export function AddPatientModal() {
           Add Patient
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[525px]">
+      <DialogContent className="sm:max-w-[525px] max-h-[90vh] overflow-y-auto">
         <form onSubmit={handleSubmit}>
-          <DialogHeader>
+          <DialogHeader className="sticky top-0 bg-background pb-4">
             <DialogTitle>Add New Patient</DialogTitle>
             <DialogDescription>Enter the patient's information below to add them to the system.</DialogDescription>
           </DialogHeader>
@@ -97,34 +97,38 @@ export function AddPatientModal() {
               <Label htmlFor="program" className="text-right">
                 Program
               </Label>
-              <Select value={formData.program} onValueChange={(value) => handleSelectChange("program", value)}>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select program" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Medicare">Medicare</SelectItem>
-                  <SelectItem value="Medicaid">Medicaid</SelectItem>
-                  <SelectItem value="Private">Private Pay</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="col-span-3">
+                <Select value={formData.program} onValueChange={(value) => handleSelectChange("program", value)}>
+                  <SelectTrigger id="program">
+                    <SelectValue placeholder="Select program" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Medicare">Medicare</SelectItem>
+                    <SelectItem value="Medicaid">Medicaid</SelectItem>
+                    <SelectItem value="Private">Private Pay</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="state" className="text-right">
                 State
               </Label>
-              <Select value={formData.state} onValueChange={(value) => handleSelectChange("state", value)}>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select state" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="CA">California (CA)</SelectItem>
-                  <SelectItem value="FL">Florida (FL)</SelectItem>
-                  <SelectItem value="GA">Georgia (GA)</SelectItem>
-                  <SelectItem value="OH">Ohio (OH)</SelectItem>
-                  <SelectItem value="NC">North Carolina (NC)</SelectItem>
-                  <SelectItem value="TX">Texas (TX)</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="col-span-3">
+                <Select value={formData.state} onValueChange={(value) => handleSelectChange("state", value)}>
+                  <SelectTrigger id="state">
+                    <SelectValue placeholder="Select state" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="CA">California (CA)</SelectItem>
+                    <SelectItem value="FL">Florida (FL)</SelectItem>
+                    <SelectItem value="GA">Georgia (GA)</SelectItem>
+                    <SelectItem value="OH">Ohio (OH)</SelectItem>
+                    <SelectItem value="NC">North Carolina (NC)</SelectItem>
+                    <SelectItem value="TX">Texas (TX)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="address" className="text-right">
@@ -170,7 +174,7 @@ export function AddPatientModal() {
               />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="sticky bottom-0 bg-background pt-2">
             <Button type="submit">Add Patient</Button>
           </DialogFooter>
         </form>
