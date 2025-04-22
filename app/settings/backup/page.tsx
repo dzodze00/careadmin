@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import { Download, Info, RefreshCw, Save } from "lucide-react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -11,6 +14,34 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function BackupPage() {
+  const [formData, setFormData] = useState({
+    frequency: "daily",
+    time: "midnight",
+    retention: "90",
+    maxBackups: "10",
+    backupType: "full",
+    storageType: "cloud",
+    encryption: "aes256",
+    cloudPath: "s3://your-bucket/backups/",
+    emailSuccess: false,
+    emailFailure: true,
+    notificationEmail: "admin@example.com",
+  })
+
+  const handleChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    console.log("Backup settings:", formData)
+    alert("Backup settings saved successfully!")
+  }
+
+  const handleRunBackup = () => {
+    alert("Backup process started. You will receive a notification when complete.")
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-10 border-b bg-background">
@@ -20,7 +51,7 @@ export default function BackupPage() {
             <h1 className="text-xl font-bold">Backup & Recovery</h1>
           </div>
           <div className="flex items-center gap-2">
-            <Button>
+            <Button onClick={handleRunBackup}>
               <RefreshCw className="mr-2 h-4 w-4" />
               Run Backup Now
             </Button>
@@ -53,13 +84,16 @@ export default function BackupPage() {
                   <CardDescription>Configure your automated backup settings</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form className="space-y-6">
+                  <form className="space-y-6" onSubmit={handleSubmit}>
                     <div className="space-y-4">
                       <h3 className="text-lg font-medium">Backup Schedule</h3>
                       <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                           <Label htmlFor="frequency">Backup Frequency</Label>
-                          <Select defaultValue="daily">
+                          <Select
+                            value={formData.frequency}
+                            onValueChange={(value) => handleChange("frequency", value)}
+                          >
                             <SelectTrigger id="frequency">
                               <SelectValue placeholder="Select frequency" />
                             </SelectTrigger>
@@ -74,7 +108,7 @@ export default function BackupPage() {
 
                         <div className="space-y-2">
                           <Label htmlFor="time">Backup Time</Label>
-                          <Select defaultValue="midnight">
+                          <Select value={formData.time} onValueChange={(value) => handleChange("time", value)}>
                             <SelectTrigger id="time">
                               <SelectValue placeholder="Select time" />
                             </SelectTrigger>
@@ -91,7 +125,10 @@ export default function BackupPage() {
 
                         <div className="space-y-2">
                           <Label htmlFor="retention">Retention Period</Label>
-                          <Select defaultValue="90">
+                          <Select
+                            value={formData.retention}
+                            onValueChange={(value) => handleChange("retention", value)}
+                          >
                             <SelectTrigger id="retention">
                               <SelectValue placeholder="Select period" />
                             </SelectTrigger>
@@ -108,7 +145,10 @@ export default function BackupPage() {
 
                         <div className="space-y-2">
                           <Label htmlFor="max-backups">Maximum Backups</Label>
-                          <Select defaultValue="10">
+                          <Select
+                            value={formData.maxBackups}
+                            onValueChange={(value) => handleChange("maxBackups", value)}
+                          >
                             <SelectTrigger id="max-backups">
                               <SelectValue placeholder="Select maximum" />
                             </SelectTrigger>
@@ -126,7 +166,11 @@ export default function BackupPage() {
 
                     <div className="space-y-4">
                       <h3 className="text-lg font-medium">Backup Type</h3>
-                      <RadioGroup defaultValue="full" className="space-y-3">
+                      <RadioGroup
+                        value={formData.backupType}
+                        onValueChange={(value) => handleChange("backupType", value)}
+                        className="space-y-3"
+                      >
                         <div className="flex items-start space-x-2">
                           <RadioGroupItem value="full" id="full" className="mt-1" />
                           <div className="grid gap-1.5">
@@ -171,7 +215,10 @@ export default function BackupPage() {
                       <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                           <Label htmlFor="storage-type">Storage Type</Label>
-                          <Select defaultValue="cloud">
+                          <Select
+                            value={formData.storageType}
+                            onValueChange={(value) => handleChange("storageType", value)}
+                          >
                             <SelectTrigger id="storage-type">
                               <SelectValue placeholder="Select storage type" />
                             </SelectTrigger>
@@ -185,7 +232,10 @@ export default function BackupPage() {
 
                         <div className="space-y-2">
                           <Label htmlFor="encryption">Encryption Level</Label>
-                          <Select defaultValue="aes256">
+                          <Select
+                            value={formData.encryption}
+                            onValueChange={(value) => handleChange("encryption", value)}
+                          >
                             <SelectTrigger id="encryption">
                               <SelectValue placeholder="Select encryption" />
                             </SelectTrigger>
@@ -200,7 +250,12 @@ export default function BackupPage() {
 
                       <div className="space-y-2">
                         <Label htmlFor="cloud-path">Cloud Storage Path</Label>
-                        <Input id="cloud-path" placeholder="s3://your-bucket/backups/" />
+                        <Input
+                          id="cloud-path"
+                          placeholder="s3://your-bucket/backups/"
+                          value={formData.cloudPath}
+                          onChange={(e) => handleChange("cloudPath", e.target.value)}
+                        />
                         <p className="text-xs text-muted-foreground">
                           For AWS S3, use s3://bucket-name/path. For Azure, use azure://container/path.
                         </p>
@@ -217,7 +272,11 @@ export default function BackupPage() {
                               Receive an email notification when backups complete successfully
                             </p>
                           </div>
-                          <Switch id="email-success" />
+                          <Switch
+                            id="email-success"
+                            checked={formData.emailSuccess}
+                            onCheckedChange={(checked) => handleChange("emailSuccess", checked)}
+                          />
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="space-y-0.5">
@@ -226,19 +285,30 @@ export default function BackupPage() {
                               Receive an email notification when backups fail
                             </p>
                           </div>
-                          <Switch id="email-failure" defaultChecked />
+                          <Switch
+                            id="email-failure"
+                            checked={formData.emailFailure}
+                            onCheckedChange={(checked) => handleChange("emailFailure", checked)}
+                          />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="notification-email">Notification Email</Label>
-                          <Input id="notification-email" placeholder="admin@example.com" />
+                          <Input
+                            id="notification-email"
+                            placeholder="admin@example.com"
+                            value={formData.notificationEmail}
+                            onChange={(e) => handleChange("notificationEmail", e.target.value)}
+                          />
                         </div>
                       </div>
                     </div>
                   </form>
                 </CardContent>
                 <CardFooter className="flex justify-end gap-2">
-                  <Button variant="outline">Cancel</Button>
-                  <Button>
+                  <Button variant="outline" type="button" onClick={() => alert("Changes discarded")}>
+                    Cancel
+                  </Button>
+                  <Button type="submit">
                     <Save className="mr-2 h-4 w-4" />
                     Save Settings
                   </Button>
