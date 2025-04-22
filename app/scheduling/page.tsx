@@ -1,9 +1,11 @@
-import { Calendar, ChevronLeft, ChevronRight, Clock, Plus, User } from "lucide-react"
+"use client"
+import { Calendar, ChevronLeft, ChevronRight, Clock, User } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { AppointmentModal } from "./appointment-modal"
 
 export default function SchedulingPage() {
   return (
@@ -14,10 +16,13 @@ export default function SchedulingPage() {
             <Calendar className="h-6 w-6" />
             <h1 className="text-xl font-bold">Scheduling</h1>
           </div>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            New Appointment
-          </Button>
+          <AppointmentModal
+            onSave={(data) => {
+              console.log("New appointment:", data)
+              // In a real app, you would save this to your backend
+              alert("Appointment scheduled successfully!")
+            }}
+          />
         </div>
       </header>
 
@@ -155,7 +160,11 @@ export default function SchedulingPage() {
                           </div>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => alert(`Viewing details for ${appointment.patient}`)}
+                      >
                         Details
                       </Button>
                     </div>
