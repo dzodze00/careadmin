@@ -48,8 +48,12 @@ export function DocumentViewer({ document, onClose }: DocumentViewerProps) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50">
-      <div className="bg-white w-full max-w-4xl max-h-[90vh] overflow-auto rounded-lg shadow-lg flex flex-col">
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center">
+      <div className="fixed inset-0 bg-black/50" onClick={handleClose}></div>
+      <div
+        className="bg-white w-full max-w-4xl max-h-[90vh] overflow-auto rounded-lg shadow-lg flex flex-col z-[1001] relative"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b bg-white">
           <h2 className="text-xl font-bold">{document.name}</h2>
           <Button variant="ghost" size="icon" onClick={handleClose}>
