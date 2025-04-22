@@ -9,7 +9,6 @@ import { Progress } from "@/components/ui/progress"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CredentialModal } from "./credential-modal"
 
 export default function CredentialTrackingPage() {
   return (
@@ -153,14 +152,9 @@ export default function CredentialTrackingPage() {
                           </TableCell>
                           <TableCell>{staff.nextExpiration}</TableCell>
                           <TableCell>
-                            <CredentialModal
-                              staff={staff.name}
-                              onSave={(data) => {
-                                console.log("Credential details:", data)
-                                // In a real app, you would save this to your backend
-                                alert(`Credential details updated for ${staff.name}`)
-                              }}
-                            />
+                            <Button size="sm" onClick={() => alert(`View details for ${staff.name}`)}>
+                              View Details
+                            </Button>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -237,16 +231,12 @@ export default function CredentialTrackingPage() {
                         <p className="text-sm font-medium text-amber-600">Expires: {renewal.expirationDate}</p>
                         <p className="text-xs text-muted-foreground">{renewal.daysRemaining} days remaining</p>
                       </div>
-                      <CredentialModal
-                        staff={renewal.staff}
-                        credential={renewal.credential}
-                        isRenewal={true}
-                        onSave={(data) => {
-                          console.log("Credential renewal:", data)
-                          // In a real app, you would save this to your backend
-                          alert(`Renewal started for ${renewal.staff}'s ${renewal.credential}`)
-                        }}
-                      />
+                      <Button
+                        size="sm"
+                        onClick={() => alert(`Start renewal for ${renewal.staff}'s ${renewal.credential}`)}
+                      >
+                        Start Renewal
+                      </Button>
                     </div>
                   ))}
                 </div>
