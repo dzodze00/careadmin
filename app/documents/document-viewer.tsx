@@ -6,7 +6,17 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
 interface DocumentViewerProps {
-  document: any
+  document: {
+    id: string
+    name: string
+    type: string
+    patient: string
+    patientId: string
+    date: string
+    state: string
+    status: string
+    content?: string
+  }
   onClose: () => void
 }
 
@@ -38,7 +48,7 @@ export function DocumentViewer({ document, onClose }: DocumentViewerProps) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50">
       <div className="bg-white w-full max-w-4xl max-h-[90vh] overflow-auto rounded-lg shadow-lg flex flex-col">
         <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b bg-white">
           <h2 className="text-xl font-bold">{document.name}</h2>
