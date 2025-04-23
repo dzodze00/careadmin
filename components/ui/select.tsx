@@ -1,11 +1,11 @@
 "use client"
 
 import * as React from "react"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, Check } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
 
 const Select = React.forwardRef<
   HTMLDivElement,
@@ -15,6 +15,7 @@ const Select = React.forwardRef<
     onValueChange?: (value: string) => void
   }
 >(({ className, defaultValue, value: controlledValue, onValueChange, children, ...props }, ref) => {
+  const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState(defaultValue || "")
 
   // Handle controlled component
@@ -29,24 +30,23 @@ const Select = React.forwardRef<
     if (onValueChange) {
       onValueChange(newValue)
     }
+    setOpen(false)
   }
 
   return (
     <div ref={ref} className={cn("relative w-full", className)} {...props}>
-      <Popover>
-        <PopoverTrigger asChild>
-          <div>
-            {React.Children.map(children, (child) => {
-              if (React.isValidElement(child) && child.type === SelectTrigger) {
-                return React.cloneElement(child as React.ReactElement<any>, {
-                  value,
-                })
-              }
-              return child
-            })}
-          </div>
-        </PopoverTrigger>
-        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+      {React.Children.map(children, (child) => {
+        if (React.isValidElement(child) && child.type === SelectTrigger) {
+          return React.cloneElement(child as React.ReactElement<any>, {
+            value,
+            onClick: () => setOpen(true),
+          })
+        }
+        return null
+      })}
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="p-0 sm:max-w-[var(--select-trigger-width,15rem)]">
           {React.Children.map(children, (child) => {
             if (React.isValidElement(child) && child.type === SelectContent) {
               return React.cloneElement(child as React.ReactElement<any>, {
@@ -54,10 +54,10 @@ const Select = React.forwardRef<
                 onValueChange: handleValueChange,
               })
             }
-            return child
+            return null
           })}
-        </PopoverContent>
-      </Popover>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 })
@@ -70,7 +70,7 @@ const SelectTrigger = React.forwardRef<
   }
 >(({ className, children, value, ...props }, ref) => {
   // Find the selected item's label
-  let selectedLabel = value
+  let selectedLabel = null
   React.Children.forEach(children, (child) => {
     if (React.isValidElement(child) && child.props.value === value) {
       selectedLabel = child.props.children
@@ -84,6 +84,11 @@ const SelectTrigger = React.forwardRef<
       role="combobox"
       aria-expanded={props["aria-expanded"]}
       className={cn("w-full justify-between font-normal", className)}
+      style={
+        {
+          "--select-trigger-width": `${className?.includes("w-[") ? className.match(/w-\[(.*?)\]/)?.[1] : "15rem"}`,
+        } as React.CSSProperties
+      }
       {...props}
     >
       <span className="flex-1 text-left">{selectedLabel || children}</span>
@@ -101,25 +106,16 @@ const SelectContent = React.forwardRef<
   }
 >(({ className, children, value, onValueChange, ...props }, ref) => {
   return (
-    <div
-      ref={ref}
-      className={cn(
-        "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
-        className,
-      )}
-      {...props}
-    >
-      <div className="max-h-[var(--radix-popover-content-available-height)] overflow-auto">
-        {React.Children.map(children, (child) => {
-          if (React.isValidElement(child) && child.type === SelectItem) {
-            return React.cloneElement(child as React.ReactElement<any>, {
-              selected: child.props.value === value,
-              onSelect: () => onValueChange?.(child.props.value),
-            })
-          }
-          return child
-        })}
-      </div>
+    <div ref={ref} className={cn("max-h-[300px] overflow-auto p-1", className)} {...props}>
+      {React.Children.map(children, (child) => {
+        if (React.isValidElement(child) && child.type === SelectItem) {
+          return React.cloneElement(child as React.ReactElement<any>, {
+            selected: child.props.value === value,
+            onSelect: () => onValueChange?.(child.props.value),
+          })
+        }
+        return child
+      })}
     </div>
   )
 })
@@ -137,7 +133,7 @@ const SelectItem = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        "relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none",
         selected ? "bg-accent text-accent-foreground" : "hover:bg-accent hover:text-accent-foreground",
         className,
       )}
@@ -145,16 +141,7 @@ const SelectItem = React.forwardRef<
       {...props}
     >
       <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-        {selected && (
-          <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M11.4669 3.72684C11.7558 3.91574 11.8369 4.30308 11.648 4.59198L7.39799 11.092C7.29783 11.2452 7.13556 11.3467 6.95402 11.3699C6.77247 11.3931 6.58989 11.3355 6.45446 11.2124L3.70446 8.71241C3.44905 8.48022 3.43023 8.08494 3.66242 7.82953C3.89461 7.57412 4.28989 7.55529 4.5453 7.78749L6.75292 9.79441L10.6018 3.90792C10.7907 3.61902 11.178 3.53795 11.4669 3.72684Z"
-              fill="currentColor"
-              fillRule="evenodd"
-              clipRule="evenodd"
-            ></path>
-          </svg>
-        )}
+        {selected && <Check className="h-4 w-4" />}
       </span>
       <span className="text-sm">{children}</span>
     </div>
