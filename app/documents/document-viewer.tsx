@@ -1,9 +1,10 @@
 "use client"
 
-import { useEffect } from "react"
+import { useState } from "react"
 import { Download, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 
 interface DocumentViewerProps {
   document: {
@@ -21,36 +22,30 @@ interface DocumentViewerProps {
 }
 
 export function DocumentViewer({ document, onClose }: DocumentViewerProps) {
-  // Handle escape key and body scroll
-  useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose()
-    }
+  const [isOpen, setIsOpen] = useState(true)
 
-    // Prevent scrolling
-    document.body.style.overflow = "hidden"
-    window.addEventListener("keydown", handleEsc)
-
-    return () => {
-      document.body.style.overflow = ""
-      window.removeEventListener("keydown", handleEsc)
-    }
-  }, [onClose])
+  // Handle dialog close
+  const handleClose = () => {
+    setIsOpen(false)
+    onClose()
+  }
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50" onClick={onClose}>
-      <div
-        className="relative z-[10000] flex max-h-[90vh] w-full max-w-4xl flex-col overflow-auto rounded-lg bg-white shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white p-4">
-          <h2 className="text-xl font-bold">{document.name}</h2>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-5 w-5" />
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) handleClose()
+      }}
+    >
+      <DialogContent className="max-w-4xl max-h-[90vh] w-full overflow-auto">
+        <DialogHeader>
+          <DialogTitle>{document.name}</DialogTitle>
+          <Button variant="ghost" size="icon" className="absolute right-4 top-4" onClick={handleClose}>
+            <X className="h-4 w-4" />
           </Button>
-        </div>
+        </DialogHeader>
 
-        <div className="flex-1 space-y-6 p-6">
+        <div className="space-y-6 py-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <h3 className="text-sm font-medium text-muted-foreground">Document Type</h3>
@@ -132,16 +127,16 @@ export function DocumentViewer({ document, onClose }: DocumentViewerProps) {
           </div>
         </div>
 
-        <div className="sticky bottom-0 z-10 flex justify-end gap-2 border-t bg-white p-4">
-          <Button variant="outline" onClick={onClose}>
+        <DialogFooter>
+          <Button variant="outline" onClick={handleClose}>
             Close
           </Button>
           <Button>
             <Download className="mr-2 h-4 w-4" />
             Download Document
           </Button>
-        </div>
-      </div>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
