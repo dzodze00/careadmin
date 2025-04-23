@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import { UserPlus } from "lucide-react"
 
@@ -17,7 +15,6 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export function AddPatientModal() {
   const [open, setOpen] = useState(false)
@@ -33,16 +30,12 @@ export function AddPatientModal() {
     email: "",
   })
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
     // In a real app, this would save to a database
     console.log("Adding patient:", formData)
@@ -64,6 +57,16 @@ export function AddPatientModal() {
     })
     setOpen(false)
   }
+
+  const programs = ["Medicare", "Medicaid", "Private"]
+  const states = [
+    { code: "CA", name: "California" },
+    { code: "FL", name: "Florida" },
+    { code: "GA", name: "Georgia" },
+    { code: "OH", name: "Ohio" },
+    { code: "NC", name: "North Carolina" },
+    { code: "TX", name: "Texas" },
+  ]
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -98,16 +101,23 @@ export function AddPatientModal() {
                 Program
               </Label>
               <div className="col-span-3">
-                <Select value={formData.program} onValueChange={(value) => handleSelectChange("program", value)}>
-                  <SelectTrigger id="program">
-                    <SelectValue placeholder="Select program" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Medicare">Medicare</SelectItem>
-                    <SelectItem value="Medicaid">Medicaid</SelectItem>
-                    <SelectItem value="Private">Private Pay</SelectItem>
-                  </SelectContent>
-                </Select>
+                <select
+                  id="program"
+                  name="program"
+                  value={formData.program}
+                  onChange={handleChange}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  required
+                >
+                  <option value="" disabled>
+                    Select program
+                  </option>
+                  {programs.map((program) => (
+                    <option key={program} value={program}>
+                      {program}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
@@ -115,19 +125,23 @@ export function AddPatientModal() {
                 State
               </Label>
               <div className="col-span-3">
-                <Select value={formData.state} onValueChange={(value) => handleSelectChange("state", value)}>
-                  <SelectTrigger id="state">
-                    <SelectValue placeholder="Select state" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="CA">California (CA)</SelectItem>
-                    <SelectItem value="FL">Florida (FL)</SelectItem>
-                    <SelectItem value="GA">Georgia (GA)</SelectItem>
-                    <SelectItem value="OH">Ohio (OH)</SelectItem>
-                    <SelectItem value="NC">North Carolina (NC)</SelectItem>
-                    <SelectItem value="TX">Texas (TX)</SelectItem>
-                  </SelectContent>
-                </Select>
+                <select
+                  id="state"
+                  name="state"
+                  value={formData.state}
+                  onChange={handleChange}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  required
+                >
+                  <option value="" disabled>
+                    Select state
+                  </option>
+                  {states.map((state) => (
+                    <option key={state.code} value={state.code}>
+                      {state.name} ({state.code})
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
