@@ -221,7 +221,9 @@ export default function PatientsPage() {
               <div className="flex flex-wrap gap-2">
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
                   <SelectTrigger className="w-[150px]">
-                    <SelectValue placeholder="Status" />
+                    <SelectValue placeholder="Status">
+                      {statusFilter === "all" ? "All Statuses" : statusFilter}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Statuses</SelectItem>
@@ -232,7 +234,9 @@ export default function PatientsPage() {
                 </Select>
                 <Select value={programFilter} onValueChange={setProgramFilter}>
                   <SelectTrigger className="w-[150px]">
-                    <SelectValue placeholder="Program" />
+                    <SelectValue placeholder="Program">
+                      {programFilter === "all" ? "All Programs" : programFilter}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Programs</SelectItem>
