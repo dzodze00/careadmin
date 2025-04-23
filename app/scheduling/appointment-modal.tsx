@@ -14,77 +14,90 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
-export function AppointmentModal({ isEdit = false, appointment = null, onSave = () => {} }) {
+export function AppointmentModal({ onSave = () => {} }) {
   const [open, setOpen] = useState(false)
   const [formData, setFormData] = useState({
-    patient: appointment?.patient || "",
-    caregiver: appointment?.caregiver || "",
-    date: appointment?.date?.split(" ")[1] || "",
-    time: appointment?.time || "",
-    type: appointment?.type || "regular",
+    patient: "",
+    caregiver: "",
+    date: "",
+    time: "",
+    type: "regular",
     notes: "",
-    status: appointment?.status || "pending",
   })
 
-  const handleChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
+  // Sample data
+  const patients = ["Eleanor Johnson", "Robert Williams", "Patricia Brown", "Michael Miller", "Jennifer Davis"]
+
+  const caregivers = ["Maria Rodriguez", "James Smith", "Sarah Davis", "Thomas Johnson", "Lisa Williams"]
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
     onSave(formData)
+    setFormData({
+      patient: "",
+      caregiver: "",
+      date: "",
+      time: "",
+      type: "regular",
+      notes: "",
+    })
     setOpen(false)
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>{isEdit ? "Edit Appointment" : "New Appointment"}</Button>
+        <Button>New Appointment</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Edit Appointment" : "New Appointment"}</DialogTitle>
-          <DialogDescription>
-            {isEdit
-              ? "Update the appointment details below."
-              : "Fill in the information below to schedule a new appointment."}
-          </DialogDescription>
+          <DialogTitle>New Appointment</DialogTitle>
+          <DialogDescription>Fill in the information below to schedule a new appointment.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="patient">Patient</Label>
-              <Select value={formData.patient} onValueChange={(value) => handleChange("patient", value)}>
-                <SelectTrigger id="patient">
-                  <SelectValue placeholder="Select patient" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Eleanor Johnson">Eleanor Johnson</SelectItem>
-                  <SelectItem value="Robert Williams">Robert Williams</SelectItem>
-                  <SelectItem value="Patricia Brown">Patricia Brown</SelectItem>
-                  <SelectItem value="Michael Miller">Michael Miller</SelectItem>
-                  <SelectItem value="Jennifer Davis">Jennifer Davis</SelectItem>
-                </SelectContent>
-              </Select>
+              <select
+                id="patient"
+                name="patient"
+                className="w-full p-2 border rounded-md"
+                value={formData.patient}
+                onChange={handleInputChange}
+                required
+              >
+                <option value="">Select patient</option>
+                {patients.map((patient, index) => (
+                  <option key={index} value={patient}>
+                    {patient}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="caregiver">Caregiver</Label>
-              <Select value={formData.caregiver} onValueChange={(value) => handleChange("caregiver", value)}>
-                <SelectTrigger id="caregiver">
-                  <SelectValue placeholder="Select caregiver" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Maria Rodriguez">Maria Rodriguez</SelectItem>
-                  <SelectItem value="James Smith">James Smith</SelectItem>
-                  <SelectItem value="Sarah Davis">Sarah Davis</SelectItem>
-                  <SelectItem value="Thomas Johnson">Thomas Johnson</SelectItem>
-                  <SelectItem value="Lisa Williams">Lisa Williams</SelectItem>
-                </SelectContent>
-              </Select>
+              <select
+                id="caregiver"
+                name="caregiver"
+                className="w-full p-2 border rounded-md"
+                value={formData.caregiver}
+                onChange={handleInputChange}
+                required
+              >
+                <option value="">Select caregiver</option>
+                {caregivers.map((caregiver, index) => (
+                  <option key={index} value={caregiver}>
+                    {caregiver}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -94,10 +107,12 @@ export function AppointmentModal({ isEdit = false, appointment = null, onSave = 
                 <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="date"
+                  name="date"
                   type="date"
                   className="pl-10"
                   value={formData.date}
-                  onChange={(e) => handleChange("date", e.target.value)}
+                  onChange={handleInputChange}
+                  required
                 />
               </div>
             </div>
@@ -107,52 +122,72 @@ export function AppointmentModal({ isEdit = false, appointment = null, onSave = 
                 <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="time"
+                  name="time"
                   type="time"
                   className="pl-10"
                   value={formData.time}
-                  onChange={(e) => handleChange("time", e.target.value)}
+                  onChange={handleInputChange}
+                  required
                 />
               </div>
             </div>
           </div>
           <div className="space-y-2">
             <Label>Appointment Type</Label>
-            <RadioGroup
-              value={formData.type}
-              onValueChange={(value) => handleChange("type", value)}
-              className="flex space-x-4"
-            >
+            <div className="flex space-x-4">
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="regular" id="regular" />
+                <input
+                  type="radio"
+                  id="regular"
+                  name="type"
+                  value="regular"
+                  checked={formData.type === "regular"}
+                  onChange={handleInputChange}
+                />
                 <Label htmlFor="regular" className="cursor-pointer">
                   Regular
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="medicare" id="medicare" />
+                <input
+                  type="radio"
+                  id="medicare"
+                  name="type"
+                  value="medicare"
+                  checked={formData.type === "medicare"}
+                  onChange={handleInputChange}
+                />
                 <Label htmlFor="medicare" className="cursor-pointer">
                   Medicare
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="medicaid" id="medicaid" />
+                <input
+                  type="radio"
+                  id="medicaid"
+                  name="type"
+                  value="medicaid"
+                  checked={formData.type === "medicaid"}
+                  onChange={handleInputChange}
+                />
                 <Label htmlFor="medicaid" className="cursor-pointer">
                   Medicaid
                 </Label>
               </div>
-            </RadioGroup>
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="notes">Notes</Label>
             <Textarea
               id="notes"
+              name="notes"
               placeholder="Add any notes about this appointment"
               value={formData.notes}
-              onChange={(e) => handleChange("notes", e.target.value)}
+              onChange={handleInputChange}
             />
           </div>
           <DialogFooter>
-            <Button type="submit">{isEdit ? "Update Appointment" : "Schedule Appointment"}</Button>
+            <Button type="submit">Schedule Appointment</Button>
           </DialogFooter>
         </form>
       </DialogContent>
